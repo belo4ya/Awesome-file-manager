@@ -31,8 +31,7 @@ class FileManager:
             raise FmNotADirectoryError(f"Указанный путь не является директорией: {path}")
 
         if not self._in_scope_root(path):
-            raise FmRootScopeError(f"Указанный путь находится за пределами корневого каталога: "
-                                   f"target - {path}, root - {self._root}")
+            raise FmRootScopeError(self._root, path)
 
         try:
             os.chdir(path.name)
@@ -45,8 +44,7 @@ class FileManager:
         path = Path(path).absolute()
 
         if not self._in_scope_root(path):
-            raise FmRootScopeError(f"Указанный путь находится за пределами корневого каталога: "
-                                   f"target - {path}, root - {self._root}")
+            raise FmRootScopeError(self._root, path)
         try:
             path.mkdir(parents=parents, exist_ok=exist_ok)
         except FileExistsError:
@@ -120,7 +118,10 @@ class FmRootDirNotFoundError(FmDirNotFoundError):
 
 
 class FmRootScopeError(FileManagerError):
-    pass
+
+    def __init__(self, scope, target):
+        message = f"Указанный путь находится за пределами корневого каталога: target - {target}, root - {scope}"
+        super(FmRootScopeError, self).__init__(message)
 
 
 class FmFileExistsError(FileManagerError):

@@ -6,4 +6,4 @@ if __name__ == '__main__':
     file_manager = FileManager(root_path)
     print(file_manager.root)
     print(file_manager.cwd)
-    file_manager.create_dir("D:/PyProjects/")
+    file_manager.create_dir("level_1/level_2")
