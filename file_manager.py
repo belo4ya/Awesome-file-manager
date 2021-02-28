@@ -1,5 +1,6 @@
 import os
 import shutil
+import shlex
 from pathlib import Path
 
 
@@ -58,7 +59,6 @@ class FileManager:
         shutil.rmtree(path)  # удаляет директорию рекурсивно
 
     def change_dir(self, path: str):
-        os.chdir(path)
         self.set_cwd(path)
 
     def create_file(self, path: str):
@@ -119,8 +119,8 @@ class FmRootDirNotFoundError(FmDirNotFoundError):
 
 class FmRootScopeError(FileManagerError):
 
-    def __init__(self, scope, target):
-        message = f"Указанный путь находится за пределами корневого каталога: target - {target}, root - {scope}"
+    def __init__(self, root=None, target=None):
+        message = f"Указанный путь находится за пределами корневого каталога: root - {root}, target - {target}"
         super(FmRootScopeError, self).__init__(message)
 
 
