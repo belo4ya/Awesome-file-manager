@@ -1,9 +1,11 @@
-from src.file_manager.file_manager import FileManager
+from src.file_manager.manager import Manager
 import os
 
 if __name__ == '__main__':
     root_path = os.path.join(os.getcwd(), "test_dir")
-    file_manager = FileManager(root_path)
-    print(file_manager.root)
-    print(file_manager.cwd)
-    file_manager.create_dir("level_1/level_2")
+    manager = Manager(root_path)
+    print(manager.cwd)
+    print(manager.change_dir("level_0/test_on_level_2/").stdout)
+    print(manager.cwd)
+    manager.change_dir(".....")
+    print(manager.cwd)
