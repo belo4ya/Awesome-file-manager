@@ -7,7 +7,7 @@ import os
 import cmd
 from subprocess import CompletedProcess
 from pathlib import Path
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 
 from config import *
 
@@ -45,7 +45,7 @@ class CrossPlatformFileManager(cmd.Cmd):
         Returns to the root directory.
         For more details use: root [--help, /?].
         """
-        cmd_, args = self.parse(self.lastcmd, args)
+        cmd_, args, shell = self.parse(self.lastcmd, args)
         if self.help_cmd["--help"] in args:
             print("Returns to the root directory.")
             return
@@ -57,8 +57,8 @@ class CrossPlatformFileManager(cmd.Cmd):
         Change the working directory.
         For more details use: cd [--help, /?].
         """
-        cmd_, args = self.parse(self.lastcmd, args)
-        answer = execute_cmd(cmd_, args)
+        cmd_, args, shell = self.parse(self.lastcmd, args)
+        answer = execute_cmd(cmd_, args, shell)
 
         if args and self.help_cmd["--help"] not in args:
             target = get_abspath(args[0])
@@ -161,17 +161,18 @@ class CrossPlatformFileManager(cmd.Cmd):
         return True
 
     def execute(self, args: str) -> None:
-        cmd_, args = self.parse(self.lastcmd, args)
-        answer = execute_cmd(cmd_, args)
+        cmd_, args, shell = self.parse(self.lastcmd, args)
+        answer = execute_cmd(cmd_, args, shell)
         msg = get_msg(answer)
 
         print(msg)
 
-    def parse(self, line, args) -> Tuple[Optional[str], Optional[List[str]]]:
+    def parse(self, line, args) -> Tuple[str, List[str], bool]:
         cmd_ = line.split()[0]
-        cmd_alias = COMMANDS[cmd_][self.platform][ALIAS]
+        cmd_list = COMMANDS[cmd_][self.platform][ALIAS].split()
+        cmd_alias = cmd_list[0]
 
-        args = shlex.split(args, posix=self.posix)
+        args = [*cmd_list[1:], *shlex.split(args, posix=self.posix)]
         param_prefix = self.help_cmd["--help"][0]
         args_alias = [
             COMMANDS[cmd_][self.platform][ARGS].get(arg) or
@@ -179,18 +180,18 @@ class CrossPlatformFileManager(cmd.Cmd):
             for arg in args
         ]
 
-        return cmd_alias, args_alias
+        shell = COMMANDS[cmd_][self.platform][SHELL]
+
+        return cmd_alias, args_alias, shell
 
 
-def execute_cmd(cmd_: str, args: List[str]) -> CompletedProcess:
-    return subprocess.run(["/bin/bash", cmd_, *args], shell=False, capture_output=True, encoding="cp866")
+def execute_cmd(cmd_: str, args: List[str], shell) -> CompletedProcess:
+    return subprocess.run([cmd_, *args], shell=shell, capture_output=True, encoding="cp866")
 
 
 def get_msg(answer: CompletedProcess) -> str:
     code = answer.returncode
-    if code == 1:
-        msg = answer.stderr or answer.stdout
-    elif code == 0:
+    if code == 1 or code == 0:
         msg = answer.stdout or answer.stderr
     else:
         msg = f"Return code: {code}. Stdout: {answer.stdout}. Stderr: {answer.stderr}"

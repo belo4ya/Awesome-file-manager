@@ -3,61 +3,62 @@ LUX = "linux"
 
 ALIAS = "alias"
 ARGS = "args"
+SHELL = "shell"
 
 HELP_CMD = {WIN: {"--help": "/?", "/?": "/?"},
             LUX: {"--help": "--help", "/?": "--help"}}
 
 COMMANDS = {
     "cd": {
-        WIN: {ALIAS: "cd", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "cd", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "cd", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "cd", SHELL: True, ARGS: {**HELP_CMD[LUX]}}
     },
     "pwd": {
-        WIN: {ALIAS: "cd", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "pwd", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "cd", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "pwd", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "ls": {
-        WIN: {ALIAS: "dir", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "ls", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "dir", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "ls", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "mkd": {
-        WIN: {ALIAS: "mkdir", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "mkdir", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "mkdir", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "mkdir", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "mkf": {
-        WIN: {ALIAS: "echo>", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "echo>", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "echo>", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "echo>", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "rmd": {
-        WIN: {ALIAS: "rmdir", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "rm -r", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "rmdir", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "rm --recursive", SHELL: True, ARGS: {**HELP_CMD[LUX]}}
     },
     "rmf": {
-        WIN: {ALIAS: "del", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "rm", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "del", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "rm", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "echo": {
-        WIN: {ALIAS: "echo", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "echo", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "echo", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "echo", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "dog": {
-        WIN: {ALIAS: "type", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "cat", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "type", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "cat", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "cp": {
-        WIN: {ALIAS: "copy", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "cp", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "copy", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "cp", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "mv": {
-        WIN: {ALIAS: "move", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "mv", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "move", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "mv", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "rn": {
-        WIN: {ALIAS: "move", ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "mv", ARGS: {**HELP_CMD[LUX]}}
+        WIN: {ALIAS: "move", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
+        LUX: {ALIAS: "mv", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "root": {
-        WIN: {ALIAS: "", ARGS: {}},
-        LUX: {ALIAS: "", ARGS: {}}
+        WIN: {ALIAS: "", SHELL: True, ARGS: {}},
+        LUX: {ALIAS: "", SHELL: False, ARGS: {}}
     },
 }
