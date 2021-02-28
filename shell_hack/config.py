@@ -27,7 +27,7 @@ COMMANDS = {
     },
     "mkf": {
         WIN: {ALIAS: "echo>", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "echo>", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
+        LUX: {ALIAS: "touch", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "rmd": {
         WIN: {ALIAS: "rmdir", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
