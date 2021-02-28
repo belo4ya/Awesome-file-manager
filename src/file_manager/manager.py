@@ -23,39 +23,25 @@ class Manager:
         if re.fullmatch(r"\.+", path):
             n_steps = len(path) - 2
             if n_steps > len(self.cwd.parents):
-                return Answer(
-                    returncode=1,
-                    stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                    error=RootScopeError
-                )
+                error = RootScopeError(self._root, path)
+                return Answer(returncode=1, error=error)
 
             path = self.cwd.parents[len(path) - 2]
         else:
             path = get_abspath(path)
 
         if not self._in_scope_root(path):
-            return Answer(
-                returncode=1,
-                stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                error=RootScopeError
-            )
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
 
         try:
             self._file_system.change_dir(path)
         except NotADirectoryError as e:
-            return Answer(
-                returncode=1,
-                stderr=f"Неверно задано имя папки: {path}.",
-                error=e
-            )
+            return Answer(returncode=1, error=e)
         except FileNotFoundError as e:
-            return Answer(
-                returncode=1,
-                stderr=f"Неверно задано имя папки: {path}.",
-                error=e
-            )
+            return Answer(returncode=1, error=e)
 
-        return Answer(returncode=0, stdout="")
+        return Answer(returncode=0)
 
     def create_dir(self, path: str, args: List[str]) -> "Answer":
         path = get_abspath(path)
@@ -63,95 +49,80 @@ class Manager:
         exist_ok = "-q" in args
 
         if not self._in_scope_root(path):
-            return Answer(
-                returncode=1,
-                stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                error=RootScopeError
-            )
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
 
         if not self._is_valid_params(["-p", "-q"], args):
-            return Answer(
-                returncode=1,
-                stderr=f"Недопустимый параметр.",
-                error=OptionError
-            )
+            error = OptionError()
+            return Answer(returncode=1, error=error)
 
         try:
             self._file_system.create_dir(path, parents=parents, exist_ok=exist_ok)
         except FileExistsError as e:
-            return Answer(
-                returncode=1,
-                stderr=e.strerror,
-                error=FileExistsError
-            )
+            return Answer(returncode=1, error=e)
         except FileNotFoundError as e:
-            return Answer(
-                returncode=1,
-                stderr=e.strerror,
-                error=FileNotFoundError
-            )
+            return Answer(returncode=1, error=e)
 
-        return Answer(returncode=0, stdout="")
+        return Answer(returncode=0)
 
     def remove_dir(self, path: str, args: List[str]) -> "Answer":
         path = get_abspath(path)
         recursive = "-r" in args
 
         if not self._in_scope_root(path):
-            return Answer(
-                returncode=1,
-                stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                error=RootScopeError
-            )
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
 
         if not self._is_valid_params(["-r"], args):
-            raise OptionError
+            error = OptionError()
+            return Answer(returncode=1, error=error)
 
         self._file_system.remove_dir(path, recursive=recursive)
+
+        return Answer(returncode=0)
 
     def create_file(self, path: str, args: List[str]) -> "Answer":
         path = get_abspath(path)
         exist_ok = "-q" in args
 
         if not self._in_scope_root(path):
-            return Answer(
-                returncode=1,
-                stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                error=RootScopeError
-            )
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
 
         if not self._is_valid_params(["-q"], args):
-            raise OptionError
+            error = OptionError()
+            return Answer(returncode=1, error=error)
 
         self._file_system.create_file(path, exist_ok=exist_ok)
+
+        return Answer(returncode=0)
 
     def remove_file(self, path: str, args: List[str]) -> "Answer":
         path = get_abspath(path)
         missing_ok = "-q" in args
 
         if not self._in_scope_root(path):
-            return Answer(
-                returncode=1,
-                stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                error=RootScopeError
-            )
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
 
         if not self._is_valid_params(["-q"], args):
-            raise OptionError
+            error = OptionError()
+            return Answer(returncode=1, error=error)
 
         self._file_system.remove_file(path, missing_ok=missing_ok)
+
+        return Answer(returncode=0)
 
     def write_file(self, path: str, data: str, args: List[str]) -> "Answer":
         path = get_abspath(path)
 
         if not self._in_scope_root(path):
-            return Answer(
-                returncode=1,
-                stderr=f"Попытка выхода за пределы корневого каталога: root - {self._root}, target - {path}.",
-                error=RootScopeError
-            )
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
 
         self._file_system.write_file(path, data)
+
+        return Answer(returncode=0)
 
     def show_file(self, path: str, args: List[str]) -> "Answer":
         pass
@@ -179,20 +150,24 @@ class Manager:
 
 class Answer:
 
-    def __init__(self, returncode, stdout="", stderr="", error=None):
+    def __init__(self, returncode, msg="", error=None):
         self.returncode = returncode
-        self.stdout = stdout
-        self.stderr = stderr
+        self.msg = msg
         self.error = error
 
 
 class RootScopeError(OSError):
-    def __init__(self, root=None, target=None):
-        message = f"Попытка выхода за пределы корневого каталога: root - {root}, target - {target}."
-        super(RootScopeError, self).__init__(message)
+
+    def __init__(self, filename=None, filename2=None):
+        self.filename = filename
+        self.filename2 = filename2
+        self.strerror = f"Попытка выхода за пределы корневого каталога: " \
+                        f"root -- {self.filename}, target -- {self.filename2}"
 
 
 class OptionError(OSError):
-    def __init__(self):
-        message = f"Недопустимый параметр."
-        super(OptionError, self).__init__(message)
+
+    def __init__(self, filename=None, filename2=None):
+        self.filename = filename
+        self.filename2 = filename2
+        self.strerror = "Недопустимый параметр."
