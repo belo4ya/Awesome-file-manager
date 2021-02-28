@@ -2,4 +2,4 @@
 /test_dir/
 /.idea/
 /__pycache__/
-/shell_hack/test/
+/src/shell_hack/test/
