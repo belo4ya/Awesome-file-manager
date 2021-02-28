@@ -125,7 +125,10 @@ class Manager:
             error = RootScopeError(self._root, path)
             return Answer(returncode=1, error=error)
 
-        self._file_system.write_file(path, data)
+        try:
+            self._file_system.write_file(path, data)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
 
         return Answer(returncode=0)
 
@@ -182,7 +185,6 @@ class RootScopeError(OSError):
 
 class OptionError(OSError):
 
-    def __init__(self, filename=None, filename2=None):
-        self.filename = filename
-        self.filename2 = filename2
-        self.strerror = "Недопустимый параметр."
+    def __init__(self, option=None):
+        self.option = option
+        self.strerror = f"Недопустимый параметр: '{self.option}'"
