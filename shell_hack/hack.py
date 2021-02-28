@@ -32,8 +32,11 @@ class CrossPlatformFileManager(cmd.Cmd):
 
     def precmd(self, line: str) -> str:
         line = line.split()
-        line[0] = line[0].lower()
-        return " ".join(line)
+        if line:
+            line[0] = line[0].lower()
+            return " ".join(line)
+
+        return ""
 
     def postcmd(self, stop: bool, line: str) -> bool:
         cwd = os.getcwd()

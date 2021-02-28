@@ -31,7 +31,7 @@ COMMANDS = {
     },
     "rmd": {
         WIN: {ALIAS: "rmdir", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
-        LUX: {ALIAS: "rm --recursive", SHELL: True, ARGS: {**HELP_CMD[LUX]}}
+        LUX: {ALIAS: "rm -r", SHELL: False, ARGS: {**HELP_CMD[LUX]}}
     },
     "rmf": {
         WIN: {ALIAS: "del", SHELL: True, ARGS: {**HELP_CMD[WIN]}},
