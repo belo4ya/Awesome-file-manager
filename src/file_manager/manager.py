@@ -36,9 +36,7 @@ class Manager:
 
         try:
             self._file_system.change_dir(path)
-        except NotADirectoryError as e:
-            return Answer(returncode=1, error=e)
-        except FileNotFoundError as e:
+        except OSError as e:
             return Answer(returncode=1, error=e)
 
         return Answer(returncode=0)
@@ -58,9 +56,7 @@ class Manager:
 
         try:
             self._file_system.create_dir(path, parents=parents, exist_ok=exist_ok)
-        except FileExistsError as e:
-            return Answer(returncode=1, error=e)
-        except FileNotFoundError as e:
+        except OSError as e:
             return Answer(returncode=1, error=e)
 
         return Answer(returncode=0)
@@ -77,7 +73,10 @@ class Manager:
             error = OptionError()
             return Answer(returncode=1, error=error)
 
-        self._file_system.remove_dir(path, recursive=recursive)
+        try:
+            self._file_system.remove_dir(path, recursive=recursive)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
 
         return Answer(returncode=0)
 
@@ -93,7 +92,10 @@ class Manager:
             error = OptionError()
             return Answer(returncode=1, error=error)
 
-        self._file_system.create_file(path, exist_ok=exist_ok)
+        try:
+            self._file_system.create_file(path, exist_ok=exist_ok)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
 
         return Answer(returncode=0)
 
@@ -109,7 +111,10 @@ class Manager:
             error = OptionError()
             return Answer(returncode=1, error=error)
 
-        self._file_system.remove_file(path, missing_ok=missing_ok)
+        try:
+            self._file_system.remove_file(path, missing_ok=missing_ok)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
 
         return Answer(returncode=0)
 
@@ -154,6 +159,16 @@ class Answer:
         self.returncode = returncode
         self.msg = msg
         self.error = error
+
+    def __repr__(self):
+        output = ['returncode={!r}'.format(self.returncode)]
+        if self.msg is not None:
+            output.append('msg={!r}'.format(self.msg))
+        if self.error is not None:
+            output.append('error={!r}'.format(self.error))
+        return "{}({})".format(type(self).__name__, ', '.join(output))
+
+    __str__ = __repr__
 
 
 class RootScopeError(OSError):
