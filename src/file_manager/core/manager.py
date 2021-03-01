@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from typing import List
 
-from src.file_manager.core import FileSystemApi
+from src.file_manager.core.api import FileSystemApi
 from src.file_manager.utils import get_abspath
 
 

@@ -1,4 +1,4 @@
-from src.file_manager.manager import Manager
+from src.file_manager.core.manager import Manager
 import os
 
 if __name__ == '__main__':
