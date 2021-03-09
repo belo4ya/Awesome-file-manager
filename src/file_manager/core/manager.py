@@ -19,14 +19,22 @@ class Manager:
     def cwd(self):
         return self._file_system.getcwd()
 
+    def root(self) -> "Answer":
+        try:
+            self._file_system.change_dir(self._root)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
+
+        return Answer(returncode=0)
+
     def change_dir(self, path: str) -> "Answer":
-        if re.fullmatch(r"\.+", path):
+        if re.fullmatch(r"\.{2,}", path):
             n_steps = len(path) - 2
-            if n_steps > len(self.cwd.parents):
+            if n_steps >= len(self.cwd.parents):
                 error = RootScopeError(self._root, path)
                 return Answer(returncode=1, error=error)
 
-            path = self.cwd.parents[len(path) - 2]
+            path = self.cwd.parents[n_steps]
         else:
             path = get_abspath(path)
 
@@ -118,7 +126,7 @@ class Manager:
 
         return Answer(returncode=0)
 
-    def write_file(self, path: str, data: str, args: List[str]) -> "Answer":
+    def write_file(self, path: str, data: str) -> "Answer":
         path = get_abspath(path)
 
         if not self._in_scope_root(path):
@@ -132,17 +140,68 @@ class Manager:
 
         return Answer(returncode=0)
 
-    def show_file(self, path: str, args: List[str]) -> "Answer":
-        pass
+    def show_file(self, path: str) -> "Answer":
+        path = get_abspath(path)
+
+        if not self._in_scope_root(path):
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
+
+        try:
+            data = self._file_system.show_file(path)
+            return Answer(returncode=0, payload=data)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
 
     def copy(self, src: str, dst: str, args: List[str]) -> "Answer":
-        pass
+        src, dst = get_abspath(src), get_abspath(dst)
+        recursive = "-r" in args
 
-    def move(self, src: str, dst: str, args: List[str]) -> "Answer":
-        pass
+        for path in [src, dst]:
+            if not self._in_scope_root(path):
+                error = RootScopeError(self._root, path)
+                return Answer(returncode=1, error=error)
 
-    def rename(self, src: str, dst: str, args: List[str]) -> "Answer":
-        pass
+        if not self._is_valid_params(["-r"], args):
+            error = OptionError()
+            return Answer(returncode=1, error=error)
+
+        try:
+            self._file_system.copy(src, dst, recursive)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
+
+        return Answer(returncode=0)
+
+    def move(self, src: str, dst: str) -> "Answer":
+        src, dst = get_abspath(src), get_abspath(dst)
+
+        for path in [src, dst]:
+            if not self._in_scope_root(path):
+                error = RootScopeError(self._root, path)
+                return Answer(returncode=1, error=error)
+
+        try:
+            self._file_system.move(src, dst)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
+
+        return Answer(returncode=0)
+
+    def rename(self, src: str, dst: str) -> "Answer":
+        src, dst = get_abspath(src), get_abspath(dst)
+
+        for path in [src, dst]:
+            if not self._in_scope_root(path):
+                error = RootScopeError(self._root, path)
+                return Answer(returncode=1, error=error)
+
+        try:
+            self._file_system.rename(src, dst)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
+
+        return Answer(returncode=0)
 
     def _in_scope_root(self, path: Path) -> bool:
         return path == self._root or self._root in path.parents
@@ -158,9 +217,10 @@ class Manager:
 
 class Answer:
 
-    def __init__(self, returncode, msg="", error=None):
+    def __init__(self, returncode, msg="", payload="", error=None):
         self.returncode = returncode
         self.msg = msg
+        self.payload = payload
         self.error = error
 
     def __repr__(self):
@@ -169,6 +229,8 @@ class Answer:
             output.append('msg={!r}'.format(self.msg))
         if self.error is not None:
             output.append('error={!r}'.format(self.error))
+        if self.payload is not None:
+            output.append('payload={!r}'.format(self.payload))
         return "{}({})".format(type(self).__name__, ', '.join(output))
 
     __str__ = __repr__
@@ -177,10 +239,9 @@ class Answer:
 class RootScopeError(OSError):
 
     def __init__(self, filename=None, filename2=None):
-        self.filename = filename
-        self.filename2 = filename2
-        self.strerror = f"Попытка выхода за пределы корневого каталога: " \
-                        f"root -- {self.filename}, target -- {self.filename2}"
+        self.filename = str(filename)
+        self.filename2 = str(filename2)
+        self.strerror = f"Попытка выхода за пределы корневого каталога"
 
 
 class OptionError(OSError):
