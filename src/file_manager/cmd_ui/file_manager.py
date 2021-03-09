@@ -21,12 +21,6 @@ class FileManager(cmd.Cmd):
         self._executor = Manager(str(self.root))
         self._parser = Parser()
 
-    def preloop(self) -> None:
-        pass
-
-    def precmd(self, line: str) -> str:
-        return line.lower()
-
     def postcmd(self, stop: bool, line: str) -> bool:
         self.prompt = self._prompt()
         return stop
@@ -38,6 +32,19 @@ class FileManager(cmd.Cmd):
             return
 
         self._on_answer(self._executor.root())
+
+    def do_ls(self, args):
+        paths, args = self._parser.parse(args)
+        path = paths[0] if paths else os.getcwd()
+        mask = ""
+
+        if self._unexpected_args(0, args):
+            return
+
+        answer = self._executor.listdir(path, mask)
+        if answer.returncode == 0:
+            return self.columnize([p.name for p in answer.payload])
+        return self._error_handler(answer.error)
 
     def do_cd(self, args):
         paths, args = self._parser.parse(args)

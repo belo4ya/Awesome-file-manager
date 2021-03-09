@@ -1,6 +1,9 @@
 import os
+import re
 import shutil
+import fnmatch
 from pathlib import Path
+from typing import List
 
 
 class FileSystemApi:
@@ -8,6 +11,12 @@ class FileSystemApi:
     @staticmethod
     def getcwd() -> Path:
         return Path(os.getcwd())
+
+    @staticmethod
+    def listdir(path: Path, mask: str) -> List[Path]:
+        # return [p for p in path.iterdir() if fnmatch.fnmatch(path.name, mask)]
+        # return [p for p in path.iterdir() if re.fullmatch(mask, path.name)]
+        return list(path.iterdir())
 
     @staticmethod
     def change_dir(path: Path):
@@ -37,7 +46,7 @@ class FileSystemApi:
         path.write_text(data, encoding=encoding)
 
     @staticmethod
-    def show_file(path: Path, encoding="utf-8"):
+    def show_file(path: Path, encoding="utf-8") -> str:
         return path.read_text(encoding=encoding)
 
     @staticmethod

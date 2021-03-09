@@ -27,6 +27,19 @@ class Manager:
 
         return Answer(returncode=0)
 
+    def listdir(self, path: str, mask: str) -> "Answer":
+        path = get_abspath(path)
+
+        if not self._in_scope_root(path):
+            error = RootScopeError(self._root, path)
+            return Answer(returncode=1, error=error)
+
+        try:
+            data = self._file_system.listdir(path, mask)
+            return Answer(returncode=0, payload=data)
+        except OSError as e:
+            return Answer(returncode=1, error=e)
+
     def change_dir(self, path: str) -> "Answer":
         if re.fullmatch(r"\.{2,}", path):
             n_steps = len(path) - 2
@@ -217,7 +230,7 @@ class Manager:
 
 class Answer:
 
-    def __init__(self, returncode, msg="", payload="", error=None):
+    def __init__(self, returncode, msg="", payload=None, error=None):
         self.returncode = returncode
         self.msg = msg
         self.payload = payload
