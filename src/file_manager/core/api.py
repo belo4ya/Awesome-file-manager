@@ -1,7 +1,6 @@
-import os
-import re
-import shutil
 import fnmatch
+import os
+import shutil
 from pathlib import Path
 from typing import List
 
@@ -13,9 +12,9 @@ class FileSystemApi:
         return Path(os.getcwd())
 
     @staticmethod
-    def listdir(path: Path, mask: str) -> List[Path]:
-        # return [p for p in path.iterdir() if fnmatch.fnmatch(path.name, mask)]
-        # return [p for p in path.iterdir() if re.fullmatch(mask, path.name)]
+    def listdir(path: Path, mask: str = "") -> List[Path]:
+        if mask != "":
+            return fnmatch.filter([p for p in path.iterdir()], mask)
         return list(path.iterdir())
 
     @staticmethod
@@ -58,7 +57,7 @@ class FileSystemApi:
 
     @staticmethod
     def move(src: Path, dst: Path):
-        shutil.move(src, dst)
+        shutil.move(str(src), str(dst))
 
     @staticmethod
     def rename(src: Path, dst: Path):
