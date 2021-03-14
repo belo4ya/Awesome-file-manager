@@ -13,7 +13,7 @@ class FileManager(cmd.Cmd):
         self.intro = "Добро пожаловать в простой кроссплатформенный awesome файловый менеджер. " \
                      "Введи help или ? для получения списка команд.\n"
 
-        self.root = get_abspath(root) or get_abspath(os.getcwd())
+        self.root = root or get_abspath(os.getcwd())
         self.prompt = self._prompt()
         self.out_prompt = "--- "
         self.err_prompt = "*** "
