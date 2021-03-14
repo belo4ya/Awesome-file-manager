@@ -7,3 +7,7 @@
 
 ### Linux (Ubuntu 20)
 <img src="demo/linux.gif" width="400">
+
+
+## Requirements
+```python >= 3.9```
