@@ -57,7 +57,7 @@ class FileSystemApi:
 
     @staticmethod
     def move(src: Path, dst: Path):
-        shutil.move(str(src), str(dst))
+        shutil.move(src, dst)
 
     @staticmethod
     def rename(src: Path, dst: Path):
